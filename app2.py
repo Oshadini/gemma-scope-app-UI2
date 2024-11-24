@@ -96,33 +96,28 @@ if sentence:
                 if selected_feature:
                     st.session_state.selected_explanation = selected_feature
 
-                    # Display feature details
-                    st.write(f"### Details for `{selected_description}`:")
-
-                    # Negative Logits
+                    # Display Negative Logits
                     neg_str = selected_feature.get("neg_str", [])
                     neg_values = selected_feature.get("neg_values", [])
                     if neg_str and neg_values:
-                        st.write("#### Negative Logits")
-                        for word, value in zip(neg_str, neg_values):
-                            st.write(f"- **{word}:** {value}")
+                        st.write("### Negative Logits")
+                        st.write(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
 
-                    # Positive Logits
+                    # Display Positive Logits
                     pos_str = selected_feature.get("pos_str", [])
                     pos_values = selected_feature.get("pos_values", [])
                     if pos_str and pos_values:
-                        st.write("#### Positive Logits")
-                        for word, value in zip(pos_str, pos_values):
-                            st.write(f"- **{word}:** {value}")
+                        st.write("### Positive Logits")
+                        st.write(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
 
-                    # Histogram: Frequency Data
+                    # Display Histogram: Frequency Data
                     freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
                     freq_y = selected_feature.get("freq_hist_data_bar_values", [])
                     if freq_x and freq_y:
                         st.write("### Frequency Histogram")
                         st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
 
-                    # Histogram: Logits Data
+                    # Display Histogram: Logits Data
                     logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
                     logits_y = selected_feature.get("logits_hist_data_bar_values", [])
                     if logits_x and logits_y:
