@@ -123,24 +123,24 @@ if sentence:
                             st.write("No Positive Logits available.")
 
                         # Display Histogram: Frequency Data
-                        freq_x = neuron_data.get("freq_hist_data_bar_heights", [])
-                        freq_y = neuron_data.get("freq_hist_data_bar_values", [])
+                        freq_x = neuron_data.get("freq_hist_data_bar_values", [])  # Swapped X-axis
+                        freq_y = neuron_data.get("freq_hist_data_bar_heights", [])  # Swapped Y-axis
                         if freq_x and freq_y:
                             st.write("### Frequency Histogram")
                             st.altair_chart(
-                                plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"),
+                                plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Values", y_label="Bar Heights"),
                                 use_container_width=True
                             )
                         else:
                             st.write("No Frequency Histogram data available.")
 
                         # Display Histogram: Logits Data
-                        logits_x = neuron_data.get("logits_hist_data_bar_heights", [])
-                        logits_y = neuron_data.get("logits_hist_data_bar_values", [])
+                        logits_x = neuron_data.get("logits_hist_data_bar_values", [])  # Swapped X-axis
+                        logits_y = neuron_data.get("logits_hist_data_bar_heights", [])  # Swapped Y-axis
                         if logits_x and logits_y:
                             st.write("### Logits Histogram")
                             st.altair_chart(
-                                plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"),
+                                plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Values", y_label="Bar Heights"),
                                 use_container_width=True
                             )
                         else:
