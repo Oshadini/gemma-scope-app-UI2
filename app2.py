@@ -13,14 +13,6 @@ HEADERS = {
     "X-Api-Key": "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"
 }
 
-HTML_TEMPLATE = "https://neuronpedia.org/{}/{}/{}?embed=true&embedexplanation=true&embedplots=true&embedtest=true&height=300"
-
-
-def get_dashboard_html(sae_release="gemma-2-9b", sae_id="20-gemmascope-res-16k", feature_idx=0):
-    """Generate the iframe URL for the Neuronpedia dashboard."""
-    return HTML_TEMPLATE.format(sae_release, sae_id, feature_idx)
-
-
 # Initialize Session State
 if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
@@ -31,12 +23,10 @@ if "selected_explanation" not in st.session_state:
 if "api_response" not in st.session_state:
     st.session_state.api_response = {}
 
-
 # Helper Functions
 def tokenize_sentence(sentence):
     """Tokenize the input sentence."""
     return sentence.split()
-
 
 def fetch_explanations_for_token(token):
     """Fetch explanations from Neuronpedia API for a given token."""
@@ -56,7 +46,6 @@ def fetch_explanations_for_token(token):
         st.error(f"API Error: {e}")
         return []
 
-
 def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
     """Generate a histogram for visualization."""
     chart = alt.Chart(pd.DataFrame({"x": x_data, "y": y_data})).mark_bar().encode(
@@ -64,11 +53,10 @@ def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
         y=alt.Y("y:Q", title=y_label)
     ).properties(
         title=title,
-        width=400,
-        height=300
+        width=600,
+        height=400
     )
     return chart
-
 
 # Streamlit App
 st.set_page_config(page_title="Token Feature Analysis", layout="wide")
@@ -109,40 +97,40 @@ if sentence:
                     st.session_state.selected_explanation = selected_feature
 
                     # Display feature details
-                    st.write(f"Details for `{selected_description}`:")
+                    st.write(f"### Details for `{selected_description}`:")
 
-                    # Display Negative Logits
+                    # Negative Logits
                     neg_str = selected_feature.get("neg_str", [])
                     neg_values = selected_feature.get("neg_values", [])
                     if neg_str and neg_values:
-                        st.write("### Negative Logits")
+                        st.write("#### Negative Logits")
                         for word, value in zip(neg_str, neg_values):
-                            st.write(f"{word}: {value}")
+                            st.write(f"- **{word}:** {value}")
 
-                    # Display Positive Logits
+                    # Positive Logits
                     pos_str = selected_feature.get("pos_str", [])
                     pos_values = selected_feature.get("pos_values", [])
                     if pos_str and pos_values:
-                        st.write("### Positive Logits")
+                        st.write("#### Positive Logits")
                         for word, value in zip(pos_str, pos_values):
-                            st.write(f"{word}: {value}")
+                            st.write(f"- **{word}:** {value}")
 
-                    # Display Histogram: Frequency Data
+                    # Histogram: Frequency Data
                     freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
                     freq_y = selected_feature.get("freq_hist_data_bar_values", [])
                     if freq_x and freq_y:
                         st.write("### Frequency Histogram")
                         st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
 
-                    # Display Histogram: Logits Data
+                    # Histogram: Logits Data
                     logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
                     logits_y = selected_feature.get("logits_hist_data_bar_values", [])
                     if logits_x and logits_y:
                         st.write("### Logits Histogram")
                         st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+        else:
+            st.warning("No features found for the selected token. Please try another token.")
 
-                    # Embed Neuronpedia Dashboard
-                    feature_idx = selected_feature.get("index", 0)
-                    sae_id = "20-gemmascope-res-16k"  # Example SAE ID
-                    html = get_dashboard_html(sae_release="gemma-2-9b", sae_id=sae_id, feature_idx=feature_idx)
-                    st.markdown(f'<iframe src="{html}" width="1200" height="600"></iframe>', unsafe_allow_html=True)
+# Footer
+st.markdown("---")
+st.text("Created by Streamlit - Example integrated with Neuronpedia API.")
