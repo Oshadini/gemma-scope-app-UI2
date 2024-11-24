@@ -48,6 +48,9 @@ def fetch_explanations_for_token(token):
 
 def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
     """Generate a histogram for visualization."""
+    if not x_data or not y_data:
+        st.write(f"No data available for {title}.")
+        return None
     chart = alt.Chart(pd.DataFrame({"x": x_data, "y": y_data})).mark_bar().encode(
         x=alt.X("x:Q", title=x_label),
         y=alt.Y("y:Q", title=y_label)
@@ -102,6 +105,8 @@ if sentence:
                     if neg_str and neg_values:
                         st.write("### Negative Logits")
                         st.write(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
+                    else:
+                        st.write("No Negative Logits available.")
 
                     # Display Positive Logits
                     pos_str = selected_feature.get("pos_str", [])
@@ -109,20 +114,32 @@ if sentence:
                     if pos_str and pos_values:
                         st.write("### Positive Logits")
                         st.write(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
+                    else:
+                        st.write("No Positive Logits available.")
 
                     # Display Histogram: Frequency Data
                     freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
                     freq_y = selected_feature.get("freq_hist_data_bar_values", [])
                     if freq_x and freq_y:
                         st.write("### Frequency Histogram")
-                        st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+                        st.altair_chart(
+                            plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"),
+                            use_container_width=True
+                        )
+                    else:
+                        st.write("No Frequency Histogram data available.")
 
                     # Display Histogram: Logits Data
                     logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
                     logits_y = selected_feature.get("logits_hist_data_bar_values", [])
                     if logits_x and logits_y:
                         st.write("### Logits Histogram")
-                        st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+                        st.altair_chart(
+                            plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"),
+                            use_container_width=True
+                        )
+                    else:
+                        st.write("No Logits Histogram data available.")
         else:
             st.warning("No features found for the selected token. Please try another token.")
 
