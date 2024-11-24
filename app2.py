@@ -33,7 +33,11 @@ def fetch_explanations_for_token(token):
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()  # Raise an error for HTTP codes >= 400
         data = response.json()
-        return data.get("explanations", [])
+        # Ensure explanations exist in the response
+        explanations = data.get("explanations", [])
+        if not explanations:
+            st.warning(f"No explanations found for token: {token}")
+        return explanations
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
