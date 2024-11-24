@@ -1,7 +1,6 @@
 # File: app_ui.py
 
 import streamlit as st
-from IPython.display import IFrame
 
 # Function to generate Neuronpedia Dashboard HTML iframe
 html_template = "https://neuronpedia.org/{}/{}/{}?embed=true&embedexplanation=true&embedplots=true&embedtest=true&height=300"
@@ -39,7 +38,7 @@ with tab2:
     st.text("Visualize the data in detail here.")
     st.slider("Adjust Threshold", 0, 100, 50, key="threshold_slider")
     if option2 == "Histogram":
-        st.hist_chart([10, 20, 15, 25, 30])  # Placeholder for histogram
+        st.bar_chart([10, 20, 15, 25, 30])  # Placeholder for histogram
     elif option2 == "Bar Chart":
         st.bar_chart([10, 30, 20, 40, 25])  # Placeholder for bar chart
     else:
