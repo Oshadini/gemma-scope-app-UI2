@@ -8,7 +8,10 @@ import altair as alt
 # Constants
 NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/explanation/search-model"
 MODEL_ID = "gemma-2-9b-it"
-HEADERS = {"Content-Type": "application/json", "X-Api-Key": "YOUR_TOKEN"}  # Replace with your API token
+HEADERS = {
+    "Content-Type": "application/json",
+    "X-Api-Key": "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"
+}
 
 # Initialize Session State
 if "selected_token" not in st.session_state:
