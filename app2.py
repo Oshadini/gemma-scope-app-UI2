@@ -8,7 +8,7 @@ import altair as alt
 
 # Constants
 NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/explanation/search-model"
-API_KEY = "YOUR_TOKEN"  # Replace with your actual Neuronpedia API token
+API_KEY = "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"  # Replace with your actual Neuronpedia API token
 MODEL_ID = "gemma-2-9b-it"
 
 # Helper Functions
