@@ -83,48 +83,53 @@ if sentence:
             st.json(st.session_state.api_response)
 
         if explanations:
+            # Store explanations in session state
             st.session_state.available_explanations = explanations
-            explanation_options = {exp["description"]: exp for exp in explanations}
-            selected_description = st.selectbox("Select a Feature:", list(explanation_options.keys()))
             
+            # Extract and display descriptions in a dropdown
+            descriptions = [exp["description"] for exp in explanations]
+            selected_description = st.selectbox("Select a Feature Description:", descriptions)
+
             if selected_description:
-                st.session_state.selected_explanation = explanation_options[selected_description]
-                selected_feature = st.session_state.selected_explanation
+                # Find the explanation details corresponding to the selected description
+                selected_feature = next((exp for exp in explanations if exp["description"] == selected_description), None)
+                if selected_feature:
+                    st.session_state.selected_explanation = selected_feature
 
-                # Display description details
-                st.write(f"Details for `{selected_description}`:")
-                
-                # Display Negative Logits
-                neg_str = selected_feature.get("neg_str", [])
-                neg_values = selected_feature.get("neg_values", [])
-                if neg_str and neg_values:
-                    st.write("### Negative Logits")
-                    st.write(f"Words: {', '.join(neg_str)}")
-                    st.write(f"Values: {neg_values}")
-                    st.altair_chart(plot_graph(range(len(neg_values)), neg_values, "Negative Logits"), use_container_width=True)
+                    # Display feature details
+                    st.write(f"Details for `{selected_description}`:")
 
-                # Display Positive Logits
-                pos_str = selected_feature.get("pos_str", [])
-                pos_values = selected_feature.get("pos_values", [])
-                if pos_str and pos_values:
-                    st.write("### Positive Logits")
-                    st.write(f"Words: {', '.join(pos_str)}")
-                    st.write(f"Values: {pos_values}")
-                    st.altair_chart(plot_graph(range(len(pos_values)), pos_values, "Positive Logits"), use_container_width=True)
+                    # Display Negative Logits
+                    neg_str = selected_feature.get("neg_str", [])
+                    neg_values = selected_feature.get("neg_values", [])
+                    if neg_str and neg_values:
+                        st.write("### Negative Logits")
+                        st.write(f"Words: {', '.join(neg_str)}")
+                        st.write(f"Values: {neg_values}")
+                        st.altair_chart(plot_graph(range(len(neg_values)), neg_values, "Negative Logits"), use_container_width=True)
 
-                # Display Histogram: Frequency Data
-                freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
-                freq_y = selected_feature.get("freq_hist_data_bar_values", [])
-                if freq_x and freq_y:
-                    st.write("### Frequency Histogram")
-                    st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+                    # Display Positive Logits
+                    pos_str = selected_feature.get("pos_str", [])
+                    pos_values = selected_feature.get("pos_values", [])
+                    if pos_str and pos_values:
+                        st.write("### Positive Logits")
+                        st.write(f"Words: {', '.join(pos_str)}")
+                        st.write(f"Values: {pos_values}")
+                        st.altair_chart(plot_graph(range(len(pos_values)), pos_values, "Positive Logits"), use_container_width=True)
 
-                # Display Histogram: Logits Data
-                logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
-                logits_y = selected_feature.get("logits_hist_data_bar_values", [])
-                if logits_x and logits_y:
-                    st.write("### Logits Histogram")
-                    st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+                    # Display Histogram: Frequency Data
+                    freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
+                    freq_y = selected_feature.get("freq_hist_data_bar_values", [])
+                    if freq_x and freq_y:
+                        st.write("### Frequency Histogram")
+                        st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+
+                    # Display Histogram: Logits Data
+                    logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
+                    logits_y = selected_feature.get("logits_hist_data_bar_values", [])
+                    if logits_x and logits_y:
+                        st.write("### Logits Histogram")
+                        st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
         else:
             st.warning("No features found for the selected token. Please try another token.")
 
