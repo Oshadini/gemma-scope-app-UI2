@@ -7,8 +7,16 @@ import altair as alt
 
 # Constants
 NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/explanation/search-model"
-API_KEY = "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"  # Replace with your actual Neuronpedia API token
 MODEL_ID = "gemma-2-9b-it"
+HEADERS = {"Content-Type": "application/json", "X-Api-Key": "YOUR_TOKEN"}  # Replace with your API token
+
+# Initialize Session State
+if "selected_token" not in st.session_state:
+    st.session_state.selected_token = None
+if "available_explanations" not in st.session_state:
+    st.session_state.available_explanations = []
+if "selected_explanation" not in st.session_state:
+    st.session_state.selected_explanation = {}
 
 # Helper Functions
 def tokenize_sentence(sentence):
@@ -21,16 +29,11 @@ def fetch_explanations_for_token(token):
         "modelId": MODEL_ID,
         "query": token
     }
-    headers = {
-        "Content-Type": "application/json",
-        "X-Api-Key": API_KEY
-    }
     try:
-        response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=headers)
+        response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()  # Raise an error for HTTP codes >= 400
         data = response.json()
-        explanations = data.get("explanations", [])
-        return explanations
+        return data.get("explanations", [])
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
@@ -58,22 +61,22 @@ sentence = st.sidebar.text_area("Enter a sentence:", "Streamlit makes creating d
 # Tokenization and Token Features
 st.header("Sentence Tokenization and Features")
 if sentence:
-    # Tokenize the sentence
     tokens = tokenize_sentence(sentence)
-    selected_token = st.radio("Tokens in Sentence:", tokens, horizontal=True)
+    st.session_state.selected_token = st.radio("Tokens in Sentence:", tokens, horizontal=True)
     
-    if selected_token:
-        st.subheader(f"Fetching Features for Token: {selected_token}")
+    if st.session_state.selected_token:
+        st.subheader(f"Fetching Features for Token: {st.session_state.selected_token}")
         
         # Fetch features from Neuronpedia API
-        explanations = fetch_explanations_for_token(selected_token)
+        explanations = fetch_explanations_for_token(st.session_state.selected_token)
         if explanations:
-            # Populate dropdown with explanation descriptions
+            st.session_state.available_explanations = explanations
             explanation_options = {exp["description"]: exp for exp in explanations}
             selected_description = st.selectbox("Select a Feature:", list(explanation_options.keys()))
             
             if selected_description:
-                selected_feature = explanation_options[selected_description]
+                st.session_state.selected_explanation = explanation_options[selected_description]
+                selected_feature = st.session_state.selected_explanation
 
                 # Display description details
                 st.write(f"Details for `{selected_description}`:")
