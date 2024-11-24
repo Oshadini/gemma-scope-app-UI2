@@ -87,6 +87,7 @@ if sentence:
                 st.altair_chart(plot_graph(activation_density, "Activation Density"), use_container_width=True)
         else:
             st.warning("No features found for the selected token. Please try another token.")
+st.write("API Response:", response.json())
 
 # Footer
 st.markdown("---")
