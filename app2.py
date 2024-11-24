@@ -99,47 +99,52 @@ if sentence:
                 if selected_feature:
                     st.session_state.selected_explanation = selected_feature
 
-                    # Display Negative Logits
-                    neg_str = selected_feature.get("neg_str", [])
-                    neg_values = selected_feature.get("neg_values", [])
-                    if neg_str and neg_values:
-                        st.write("### Negative Logits")
-                        st.write(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
+                    # Access neuron data
+                    neuron_data = selected_feature.get("neuron", {})
+                    if not neuron_data:
+                        st.warning("No neuron data available for the selected feature.")
                     else:
-                        st.write("No Negative Logits available.")
+                        # Display Negative Logits
+                        neg_str = neuron_data.get("neg_str", [])
+                        neg_values = neuron_data.get("neg_values", [])
+                        if neg_str and neg_values:
+                            st.write("### Negative Logits")
+                            st.write(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
+                        else:
+                            st.write("No Negative Logits available.")
 
-                    # Display Positive Logits
-                    pos_str = selected_feature.get("pos_str", [])
-                    pos_values = selected_feature.get("pos_values", [])
-                    if pos_str and pos_values:
-                        st.write("### Positive Logits")
-                        st.write(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
-                    else:
-                        st.write("No Positive Logits available.")
+                        # Display Positive Logits
+                        pos_str = neuron_data.get("pos_str", [])
+                        pos_values = neuron_data.get("pos_values", [])
+                        if pos_str and pos_values:
+                            st.write("### Positive Logits")
+                            st.write(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
+                        else:
+                            st.write("No Positive Logits available.")
 
-                    # Display Histogram: Frequency Data
-                    freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
-                    freq_y = selected_feature.get("freq_hist_data_bar_values", [])
-                    if freq_x and freq_y:
-                        st.write("### Frequency Histogram")
-                        st.altair_chart(
-                            plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"),
-                            use_container_width=True
-                        )
-                    else:
-                        st.write("No Frequency Histogram data available.")
+                        # Display Histogram: Frequency Data
+                        freq_x = neuron_data.get("freq_hist_data_bar_heights", [])
+                        freq_y = neuron_data.get("freq_hist_data_bar_values", [])
+                        if freq_x and freq_y:
+                            st.write("### Frequency Histogram")
+                            st.altair_chart(
+                                plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"),
+                                use_container_width=True
+                            )
+                        else:
+                            st.write("No Frequency Histogram data available.")
 
-                    # Display Histogram: Logits Data
-                    logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
-                    logits_y = selected_feature.get("logits_hist_data_bar_values", [])
-                    if logits_x and logits_y:
-                        st.write("### Logits Histogram")
-                        st.altair_chart(
-                            plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"),
-                            use_container_width=True
-                        )
-                    else:
-                        st.write("No Logits Histogram data available.")
+                        # Display Histogram: Logits Data
+                        logits_x = neuron_data.get("logits_hist_data_bar_heights", [])
+                        logits_y = neuron_data.get("logits_hist_data_bar_values", [])
+                        if logits_x and logits_y:
+                            st.write("### Logits Histogram")
+                            st.altair_chart(
+                                plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"),
+                                use_container_width=True
+                            )
+                        else:
+                            st.write("No Logits Histogram data available.")
         else:
             st.warning("No features found for the selected token. Please try another token.")
 
