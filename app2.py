@@ -3,7 +3,6 @@
 import streamlit as st
 import requests
 import pandas as pd
-import numpy as np
 import altair as alt
 
 # Constants
@@ -32,16 +31,15 @@ def fetch_explanations_for_token(token):
         data = response.json()
         explanations = data.get("explanations", [])
         return explanations
-        st.write("API Response:", response.json())
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
 
-def plot_graph(data, title):
-    """Generate a simple bar chart for visualization."""
-    chart = alt.Chart(pd.DataFrame({"x": range(len(data)), "y": data})).mark_bar().encode(
-        x="x",
-        y="y"
+def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
+    """Generate a histogram for visualization."""
+    chart = alt.Chart(pd.DataFrame({"x": x_data, "y": y_data})).mark_bar().encode(
+        x=alt.X("x:Q", title=x_label),
+        y=alt.Y("y:Q", title=y_label)
     ).properties(
         title=title,
         width=400,
@@ -75,20 +73,44 @@ if sentence:
             selected_description = st.selectbox("Select a Feature:", list(explanation_options.keys()))
             
             if selected_description:
-                st.write(f"Details for `{selected_description}`:")
                 selected_feature = explanation_options[selected_description]
 
-                # Display related graphs (dummy data for demonstration)
-                pos_logits = np.random.rand(10)  # Replace with real data if available
-                neg_logits = np.random.rand(10)  # Replace with real data if available
-                activation_density = np.random.rand(10)  # Replace with real data if available
+                # Display description details
+                st.write(f"Details for `{selected_description}`:")
                 
-                st.altair_chart(plot_graph(pos_logits, "Positive Logits"), use_container_width=True)
-                st.altair_chart(plot_graph(neg_logits, "Negative Logits"), use_container_width=True)
-                st.altair_chart(plot_graph(activation_density, "Activation Density"), use_container_width=True)
+                # Display Negative Logits
+                neg_str = selected_feature.get("neg_str", [])
+                neg_values = selected_feature.get("neg_values", [])
+                if neg_str and neg_values:
+                    st.write("### Negative Logits")
+                    st.write(f"Words: {', '.join(neg_str)}")
+                    st.write(f"Values: {neg_values}")
+                    st.altair_chart(plot_graph(range(len(neg_values)), neg_values, "Negative Logits"), use_container_width=True)
+
+                # Display Positive Logits
+                pos_str = selected_feature.get("pos_str", [])
+                pos_values = selected_feature.get("pos_values", [])
+                if pos_str and pos_values:
+                    st.write("### Positive Logits")
+                    st.write(f"Words: {', '.join(pos_str)}")
+                    st.write(f"Values: {pos_values}")
+                    st.altair_chart(plot_graph(range(len(pos_values)), pos_values, "Positive Logits"), use_container_width=True)
+
+                # Display Histogram: Frequency Data
+                freq_x = selected_feature.get("freq_hist_data_bar_heights", [])
+                freq_y = selected_feature.get("freq_hist_data_bar_values", [])
+                if freq_x and freq_y:
+                    st.write("### Frequency Histogram")
+                    st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
+
+                # Display Histogram: Logits Data
+                logits_x = selected_feature.get("logits_hist_data_bar_heights", [])
+                logits_y = selected_feature.get("logits_hist_data_bar_values", [])
+                if logits_x and logits_y:
+                    st.write("### Logits Histogram")
+                    st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", x_label="Bar Heights", y_label="Bar Values"), use_container_width=True)
         else:
             st.warning("No features found for the selected token. Please try another token.")
-
 
 # Footer
 st.markdown("---")
