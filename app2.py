@@ -4,7 +4,6 @@ import streamlit as st
 import requests
 import pandas as pd
 import altair as alt
-from IPython.display import IFrame
 
 # Constants
 NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/explanation/search-model"
