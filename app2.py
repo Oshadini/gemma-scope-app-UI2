@@ -17,6 +17,8 @@ if "available_explanations" not in st.session_state:
     st.session_state.available_explanations = []
 if "selected_explanation" not in st.session_state:
     st.session_state.selected_explanation = {}
+if "api_response" not in st.session_state:
+    st.session_state.api_response = {}
 
 # Helper Functions
 def tokenize_sentence(sentence):
@@ -32,9 +34,8 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()  # Raise an error for HTTP codes >= 400
-        data = response.json()
-        # Ensure explanations exist in the response
-        explanations = data.get("explanations", [])
+        st.session_state.api_response = response.json()  # Store the API response in session state
+        explanations = st.session_state.api_response.get("explanations", [])
         if not explanations:
             st.warning(f"No explanations found for token: {token}")
         return explanations
@@ -73,6 +74,11 @@ if sentence:
         
         # Fetch features from Neuronpedia API
         explanations = fetch_explanations_for_token(st.session_state.selected_token)
+        
+        # Display raw API response in an expandable section
+        with st.expander("View API Response"):
+            st.json(st.session_state.api_response)
+
         if explanations:
             st.session_state.available_explanations = explanations
             explanation_options = {exp["description"]: exp for exp in explanations}
