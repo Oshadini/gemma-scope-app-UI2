@@ -32,6 +32,7 @@ def fetch_explanations_for_token(token):
         data = response.json()
         explanations = data.get("explanations", [])
         return explanations
+        st.write("API Response:", response.json())
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
@@ -87,7 +88,7 @@ if sentence:
                 st.altair_chart(plot_graph(activation_density, "Activation Density"), use_container_width=True)
         else:
             st.warning("No features found for the selected token. Please try another token.")
-st.write("API Response:", response.json())
+
 
 # Footer
 st.markdown("---")
