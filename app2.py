@@ -101,8 +101,8 @@ if st.session_state.selected_token:
     explanations = fetch_explanations_for_token(st.session_state.selected_token)
 
     if explanations:
-        descriptions = [exp["description"] for exp in explanations]
-        selected_description = st.selectbox("Select a Feature Description:", descriptions)
+        descriptions2 = [exp["description"] for exp in explanations]
+        selected_description = st.selectbox("Select a Feature Description:", descriptions2)
 
         if selected_description and selected_description != "No description available":
             selected_feature = next((exp for exp in explanations if exp["description"] == selected_description), None)
