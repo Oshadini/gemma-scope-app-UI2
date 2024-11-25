@@ -44,7 +44,7 @@ def fetch_explanations_for_token(token):
         response.raise_for_status()
         result_data = response.json().get("result", [])  # Top-level 'result'
         descriptions = []  # To store all descriptions
-    
+
         # Traverse the results
         for result in result_data:
             neuron = result.get("neuron", {})  # Get 'neuron' object
@@ -54,17 +54,12 @@ def fetch_explanations_for_token(token):
                     for explanation in nested_explanations:
                         description = explanation.get("description", "No description available")
                         descriptions.append(description)
-    
-        # Debugging: Check collected descriptions
-        st.write("Collected Descriptions:", descriptions)
-    
+
         return descriptions  # Return all extracted descriptions
-    
+
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
-
-
 
 
 def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
@@ -107,43 +102,10 @@ if st.session_state.selected_token:
     explanations = fetch_explanations_for_token(st.session_state.selected_token)
 
     if explanations:
-        descriptions = [exp["description"] for exp in explanations]
-        selected_description = st.selectbox("Select a Feature Description:", descriptions)
+        # Display descriptions in a dropdown
+        selected_description = st.selectbox("Select a Feature Description:", explanations)
 
         if selected_description and selected_description != "No description available":
-            selected_feature = next((exp for exp in explanations if exp["description"] == selected_description), None)
-            if selected_feature:
-                neuron_data = selected_feature.get("neuron", {})
-                if neuron_data:
-                    # Display Neuron Data
-                    cols = st.columns(2)
-                    with cols[0]:
-                        st.markdown("### Negative Logits")
-                        neg_str = neuron_data.get("neg_str", [])
-                        neg_values = neuron_data.get("neg_values", [])
-                        if neg_str and neg_values:
-                            st.dataframe(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
-                        else:
-                            st.write("No Negative Logits available.")
-                    with cols[1]:
-                        st.markdown("### Positive Logits")
-                        pos_str = neuron_data.get("pos_str", [])
-                        pos_values = neuron_data.get("pos_values", [])
-                        if pos_str and pos_values:
-                            st.dataframe(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
-                        else:
-                            st.write("No Positive Logits available.")
-
-                    # Render Histograms
-                    freq_x = neuron_data.get("freq_hist_data_bar_values", [])
-                    freq_y = neuron_data.get("freq_hist_data_bar_heights", [])
-                    if freq_x and freq_y:
-                        st.markdown("### Frequency Histogram")
-                        st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", "Values", "Frequency"), use_container_width=True)
-                    logits_x = neuron_data.get("logits_hist_data_bar_values", [])
-                    logits_y = neuron_data.get("logits_hist_data_bar_heights", [])
-                    if logits_x and logits_y:
-                        st.markdown("### Logits Histogram")
-                        st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", "Values", "Logits"), use_container_width=True)
+            st.markdown(f"### Selected Description\n{selected_description}")
     else:
         st.warning("No explanations found for the selected token.")
