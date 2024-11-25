@@ -44,13 +44,22 @@ def fetch_explanations_for_token(token):
         response.raise_for_status()
         explanations = response.json().get("result", [])
         descriptions = []
-        for explanation in explanations:
-            nested_explanations = explanation.get("explanations", [])
-            descriptions.extend(nested_explanations)
-        return descriptions  # Return all nested descriptions
+    
+        # Traverse results and extract nested descriptions
+        for result in explanations:
+            neuron = result.get("neuron", {})
+            if neuron:
+                nested_explanations = neuron.get("explanations", [])
+                for explanation in nested_explanations:
+                    description = explanation.get("description", "No description available")
+                    descriptions.append(description)
+        
+        return descriptions  # Return all extracted descriptions
+    
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
+
 
 def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
     """Generate a histogram for visualization."""
