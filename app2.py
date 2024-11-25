@@ -87,13 +87,16 @@ if st.sidebar.button("Generate Tokens"):
     st.session_state.tokens = tokenize_sentence(sentence)
 
 # Apply Custom CSS for Button Styling
+# Apply Custom CSS for Button Styling
 st.markdown(
     """
     <style>
     div[data-testid="stVerticalBlock"] > div {
         margin: 0px;  /* Remove gaps between buttons */
         padding: 0px; /* No padding */
-        display: inline-block;
+        display: flex;  /* Use flexbox to align buttons in a row */
+        flex-wrap: wrap;  /* Allow buttons to wrap to the next line when needed */
+        gap: 5px;  /* Optional: Add gap between buttons */
     }
     .stButton > button {
         height: 40px;  /* Uniform button height */
@@ -105,7 +108,7 @@ st.markdown(
         font-size: 14px;
         font-weight: bold;
         padding: 0 10px;  /* Padding inside the button */
-        margin: 2px;  /* Small margin to keep buttons close */
+        margin: 0;  /* Remove margins, use flexbox gap instead */
     }
     .stButton > button:hover {
         background-color: #005f99;  /* Darker blue on hover */
@@ -114,6 +117,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 # Display Tokens and Features
 if "tokens" in st.session_state and st.session_state.tokens:
