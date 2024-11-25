@@ -17,7 +17,6 @@ HEADERS = {
 }
 
 # Initialize Session State
-# Initialize Session State
 if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
 if "available_explanations" not in st.session_state:
@@ -25,14 +24,13 @@ if "available_explanations" not in st.session_state:
 if "selected_explanation" not in st.session_state:
     st.session_state.selected_explanation = {}
 
-
 # Helper Functions
 def tokenize_sentence(sentence):
-    """Tokenize the input sentence using regex."""
+    """Tokenize the input sentence using regex for better handling of punctuation and whitespace."""
     return re.findall(r"\b\w+\b|[^\w\s]", sentence)
 
 def fetch_explanations_for_token(token):
-    """Fetch explanations for a given token using the Neuronpedia 'search-all' API."""
+    """Fetch explanations from Neuronpedia API for a given token."""
     payload = {
         "modelId": MODEL_ID,
         "sourceSet": SOURCE_SET,
@@ -46,14 +44,10 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        result = response.json().get("result", [])
-        
-        # Debugging: Display the raw API response
-        #st.write("API Response Debugging:", response.json())
-        
-        if not result:
+        explanations = response.json().get("results", [])
+        if not explanations:
             st.warning(f"No explanations found for token: {token}")
-        return result
+        return explanations
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
