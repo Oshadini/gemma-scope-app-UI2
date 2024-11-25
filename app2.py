@@ -21,16 +21,20 @@ if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
 if "available_explanations" not in st.session_state:
     st.session_state.available_explanations = []
-if "selected_explanation" not in st.session_state:
-    st.session_state.selected_explanation = {}
+if "tokens" not in st.session_state:
+    st.session_state.tokens = []
+if "api_response" not in st.session_state:
+    st.session_state.api_response = None
+
 
 # Helper Functions
 def tokenize_sentence(sentence):
-    """Tokenize the input sentence using regex for better handling of punctuation and whitespace."""
+    """Tokenize the input sentence using regex."""
     return re.findall(r"\b\w+\b|[^\w\s]", sentence)
 
+
 def fetch_explanations_for_token(token):
-    """Fetch explanations from Neuronpedia API for a given token."""
+    """Fetch explanations for a given token using the Neuronpedia 'search-all' API."""
     payload = {
         "modelId": MODEL_ID,
         "sourceSet": SOURCE_SET,
@@ -44,13 +48,17 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        explanations = response.json().get("explanations", [])
-        if not explanations:
+        st.session_state.api_response = response.json()  # Store raw response for inspection
+        result = st.session_state.api_response.get("result", [])
+
+        if not result:
             st.warning(f"No explanations found for token: {token}")
-        return explanations
+        return result
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
+        st.session_state.api_response = None
         return []
+
 
 def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
     """Generate a histogram for visualization."""
@@ -66,6 +74,7 @@ def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
         height=400
     )
     return chart
+
 
 # Streamlit App
 st.set_page_config(page_title="Token Feature Analysis", layout="wide", page_icon="🔍")
@@ -115,6 +124,10 @@ if sentence:
     if st.session_state.selected_token:
         st.markdown(f"<h3 style='color:#1ABC9C;'>Features for Token: <u>{st.session_state.selected_token}</u></h3>", unsafe_allow_html=True)
         explanations = fetch_explanations_for_token(st.session_state.selected_token)
+
+        if st.session_state.api_response:
+            with st.expander("View Raw API Response"):
+                st.json(st.session_state.api_response)
 
         if explanations:
             descriptions = [exp["description"] for exp in explanations]
