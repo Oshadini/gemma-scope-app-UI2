@@ -19,10 +19,10 @@ HEADERS = {
 # Initialize Session State
 if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
-if "available_features" not in st.session_state:
-    st.session_state.available_features = []
-if "selected_feature" not in st.session_state:
-    st.session_state.selected_feature = {}
+if "available_explanations" not in st.session_state:
+    st.session_state.available_explanations = []
+if "selected_explanation" not in st.session_state:
+    st.session_state.selected_explanation = {}
 
 # Helper Functions
 def tokenize_sentence(sentence):
@@ -44,10 +44,9 @@ def fetch_features_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        results = response.json().get("results", [])
-        if not results:
-            st.warning(f"No features found for token: {token}")
-        return results
+        result = response.json()
+        explanations = result.get("result", [])
+        return explanations
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
@@ -114,40 +113,45 @@ if sentence:
 
     if st.session_state.selected_token:
         st.markdown(f"<h3 style='color:#1ABC9C;'>Features for Token: <u>{st.session_state.selected_token}</u></h3>", unsafe_allow_html=True)
-        features = fetch_features_for_token(st.session_state.selected_token)
+        explanations = fetch_features_for_token(st.session_state.selected_token)
 
-        if features:
-            # Extract descriptions
-            descriptions = [feature.get("featureDescription", "No description available") for feature in features]
+        if explanations:
+            # Extract descriptions from explanations
+            descriptions = [exp.get("explanations", [{}])[0].get("description", "No description available") for exp in explanations]
             selected_description = st.selectbox("Select a Feature Description:", descriptions)
 
             if selected_description:
-                # Find the corresponding feature
+                # Find the corresponding explanation
                 selected_feature = next(
-                    (feature for feature in features if feature.get("featureDescription") == selected_description),
+                    (exp for exp in explanations if exp.get("explanations", [{}])[0].get("description") == selected_description),
                     None
                 )
                 if selected_feature:
-                    # Logits Data and Histograms
-                    freq_x = selected_feature.get("freq_hist_data_bar_values", [])
-                    freq_y = selected_feature.get("freq_hist_data_bar_heights", [])
-                    logits_x = selected_feature.get("logits_hist_data_bar_values", [])
-                    logits_y = selected_feature.get("logits_hist_data_bar_heights", [])
+                    # Display Positive and Negative Logits
+                    neg_str = selected_feature.get("neuron", {}).get("neg_str", [])
+                    neg_values = selected_feature.get("neuron", {}).get("neg_values", [])
+                    pos_str = selected_feature.get("neuron", {}).get("pos_str", [])
+                    pos_values = selected_feature.get("neuron", {}).get("pos_values", [])
 
-                    # Display Frequency Histogram
+                    st.markdown("<h4 style='color:#1F618D;'>Logits Table</h4>", unsafe_allow_html=True)
+                    if neg_str and neg_values:
+                        st.write("### Negative Logits")
+                        st.write(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
+                    if pos_str and pos_values:
+                        st.write("### Positive Logits")
+                        st.write(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
+
+                    # Histograms
+                    freq_x = selected_feature.get("neuron", {}).get("freq_hist_data_bar_values", [])
+                    freq_y = selected_feature.get("neuron", {}).get("freq_hist_data_bar_heights", [])
+                    logits_x = selected_feature.get("neuron", {}).get("logits_hist_data_bar_values", [])
+                    logits_y = selected_feature.get("neuron", {}).get("logits_hist_data_bar_heights", [])
+
                     if freq_x and freq_y:
                         st.markdown("<h4 style='color:#1F618D;'>Frequency Histogram</h4>", unsafe_allow_html=True)
-                        st.altair_chart(
-                            plot_graph(freq_x, freq_y, "Frequency Histogram", "Values", "Frequency"),
-                            use_container_width=True
-                        )
-
-                    # Display Logits Histogram
+                        st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram"), use_container_width=True)
                     if logits_x and logits_y:
                         st.markdown("<h4 style='color:#1F618D;'>Logits Histogram</h4>", unsafe_allow_html=True)
-                        st.altair_chart(
-                            plot_graph(logits_x, logits_y, "Logits Histogram", "Values", "Logits"),
-                            use_container_width=True
-                        )
+                        st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram"), use_container_width=True)
         else:
             st.warning("No features found for the selected token. Try another token.")
