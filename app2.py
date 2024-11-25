@@ -115,7 +115,7 @@ if sentence:
     if st.session_state.selected_token:
         st.markdown(f"<h3 style='color:#1ABC9C;'>Features for Token: <u>{st.session_state.selected_token}</u></h3>", unsafe_allow_html=True)
         explanations = fetch_explanations_for_token(st.session_state.selected_token)
-        #st.write(explanations)
+        st.write(explanations)
         if explanations:
             descriptions = [exp["description"] for exp in explanations]
             selected_description = st.selectbox("Select a Feature Description:", descriptions)
