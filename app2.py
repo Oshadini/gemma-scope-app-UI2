@@ -42,23 +42,19 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        result_data = response.json().get("result", [])  # Top-level 'result'
-        explanations = []  # To store all explanations
-    
-        # Traverse the results
+        result_data = response.json().get("result", [])
+        explanations = []
         for result in result_data:
-            neuron = result.get("neuron", {})  # Get 'neuron' object
+            neuron = result.get("neuron", {})
             if neuron:
-                nested_explanations = neuron.get("explanations", [])  # Access 'explanations'
-                if isinstance(nested_explanations, list):  # Ensure it's a list
+                nested_explanations = neuron.get("explanations", [])
+                if isinstance(nested_explanations, list):
                     for explanation in nested_explanations:
                         explanations.append({
                             "description": explanation.get("description", "No description available"),
                             "neuron": neuron
                         })
-    
-        return explanations  # Return all explanations with their associated neuron data
-    
+        return explanations
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
@@ -93,22 +89,22 @@ st.markdown(
     """
     <style>
     div[data-testid="stHorizontalBlock"] > div {
-        margin: 0px;  /* Remove gaps between buttons */
-        padding: 5px; /* Add uniform spacing */
+        margin: 0px;  
+        padding: 5px; 
     }
     button[data-testid="stButton"] {
-        height: 40px;  /* Uniform button height */
-        border: 2px solid #b2d8e6;  /* Light blue border */
-        border-radius: 8px;  /* Rounded corners */
-        background-color: #e3f7fc;  /* Light blue background */
-        color: #007acc;  /* Blue text */
+        height: 40px; 
+        border: 2px solid #b2d8e6;  
+        border-radius: 8px;  
+        background-color: #e3f7fc;  
+        color: #007acc;  
         font-size: 14px;
         font-weight: bold;
-        margin: 0px auto;  /* Center align buttons */
+        margin: 2px;  
     }
     button[data-testid="stButton"]:hover {
-        background-color: #d1f0ff;  /* Brighter hover effect */
-        color: #005f99;  /* Darker hover text */
+        background-color: #d1f0ff;  
+        color: #005f99;  
     }
     </style>
     """,
@@ -138,7 +134,6 @@ if st.session_state.selected_token:
             if selected_feature:
                 neuron_data = selected_feature.get("neuron", {})
                 if neuron_data:
-                    # Display Neuron Data
                     cols = st.columns(2)
                     with cols[0]:
                         st.markdown("### Negative Logits")
@@ -157,7 +152,6 @@ if st.session_state.selected_token:
                         else:
                             st.write("No Positive Logits available.")
 
-                    # Render Histograms
                     freq_x = neuron_data.get("freq_hist_data_bar_values", [])
                     freq_y = neuron_data.get("freq_hist_data_bar_heights", [])
                     if freq_x and freq_y:
