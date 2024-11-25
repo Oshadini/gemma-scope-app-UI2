@@ -13,7 +13,7 @@ SOURCE_SET = "res-jb"
 SELECTED_LAYERS = ["6-res-jb"]
 HEADERS = {
     "Content-Type": "application/json",
-    "X-Api-Key": "YOUR_TOKEN"  # Replace with your actual API token
+    "X-Api-Key": "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"  # Replace with your actual API token
 }
 
 # Initialize Session State
