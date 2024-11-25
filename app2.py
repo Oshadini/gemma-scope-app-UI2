@@ -42,23 +42,24 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        explanations = response.json().get("result", [])
+        result_data = response.json().get("result", [])  # Top-level 'result'
         descriptions = []
     
-        # Traverse results and extract nested descriptions
-        for result in explanations:
-            neuron = result.get("neuron", {})
+        # Traverse the results
+        for result in result_data:
+            neuron = result.get("neuron", {})  # Get 'neuron' object
             if neuron:
-                nested_explanations = neuron.get("explanations", [])
+                nested_explanations = neuron.get("explanations", [])  # Access 'explanations'
                 for explanation in nested_explanations:
                     description = explanation.get("description", "No description available")
                     descriptions.append(description)
-        
+    
         return descriptions  # Return all extracted descriptions
     
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
+
 
 
 def plot_graph(x_data, y_data, title, x_label="X-axis", y_label="Y-axis"):
