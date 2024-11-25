@@ -7,11 +7,13 @@ import altair as alt
 import re  # Import regex for improved tokenization
 
 # Constants
-NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/explanation/search-model"
-MODEL_ID = "gemma-2-9b-it"
+NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/search-all"
+MODEL_ID = "gpt2-small"
+SOURCE_SET = "res-jb"
+SELECTED_LAYERS = ["6-res-jb"]
 HEADERS = {
     "Content-Type": "application/json",
-    "X-Api-Key": "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"
+    "X-Api-Key": "YOUR_TOKEN"  # Replace with your actual API token
 }
 
 # Initialize Session State
@@ -27,19 +29,25 @@ def tokenize_sentence(sentence):
     """Tokenize the input sentence using regex for better handling of punctuation and whitespace."""
     return re.findall(r"\b\w+\b|[^\w\s]", sentence)
 
-def fetch_explanations_for_token(token):
-    """Fetch explanations from Neuronpedia API for a given token."""
+def fetch_features_for_token(token):
+    """Fetch features for a given token using the 'Top Features for Text' API."""
     payload = {
         "modelId": MODEL_ID,
-        "query": token
+        "sourceSet": SOURCE_SET,
+        "text": token,
+        "selectedLayers": SELECTED_LAYERS,
+        "sortIndexes": [1],
+        "ignoreBos": False,
+        "densityThreshold": -1,
+        "numResults": 50,
     }
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        explanations = response.json().get("results", [])
-        if not explanations:
-            st.warning(f"No explanations found for token: {token}")
-        return explanations
+        features = response.json().get("results", [])
+        if not features:
+            st.warning(f"No features found for token: {token}")
+        return features
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
@@ -83,7 +91,7 @@ if sentence:
             border-radius: 10px;
             font-size: 16px;
             height: 50px;
-            margin: 5px;
+            margin: 2px;  /* Small gap */
             padding: 5px 15px;
         }
         .stButton button:hover {
@@ -106,48 +114,36 @@ if sentence:
 
     if st.session_state.selected_token:
         st.markdown(f"<h3 style='color:#1ABC9C;'>Features for Token: <u>{st.session_state.selected_token}</u></h3>", unsafe_allow_html=True)
-        explanations = fetch_explanations_for_token(st.session_state.selected_token)
+        features = fetch_features_for_token(st.session_state.selected_token)
 
-        if explanations:
-            descriptions = [exp["description"] for exp in explanations]
+        if features:
+            # Extract and display descriptions in a dropdown
+            descriptions = [feature["description"] for feature in features]
             selected_description = st.selectbox("Select a Feature Description:", descriptions)
 
             if selected_description:
-                selected_feature = next((exp for exp in explanations if exp["description"] == selected_description), None)
+                selected_feature = next((feature for feature in features if feature["description"] == selected_description), None)
                 if selected_feature:
-                    neuron_data = selected_feature.get("neuron", {})
-                    if not neuron_data:
-                        st.warning("No neuron data available for the selected feature.")
-                    else:
-                        # Logits Tables
-                        cols = st.columns(2)
-                        with cols[0]:
-                            st.markdown("### Negative Logits")
-                            neg_str = neuron_data.get("neg_str", [])
-                            neg_values = neuron_data.get("neg_values", [])
-                            if neg_str and neg_values:
-                                st.dataframe(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
-                            else:
-                                st.write("No Negative Logits available.")
-                        with cols[1]:
-                            st.markdown("### Positive Logits")
-                            pos_str = neuron_data.get("pos_str", [])
-                            pos_values = neuron_data.get("pos_values", [])
-                            if pos_str and pos_values:
-                                st.dataframe(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
-                            else:
-                                st.write("No Positive Logits available.")
-                        
-                        # Histograms
-                        freq_x = neuron_data.get("freq_hist_data_bar_values", [])
-                        freq_y = neuron_data.get("freq_hist_data_bar_heights", [])
-                        if freq_x and freq_y:
-                            st.markdown("### Frequency Histogram")
-                            st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", "Values", "Frequency"), use_container_width=True)
-                        logits_x = neuron_data.get("logits_hist_data_bar_values", [])
-                        logits_y = neuron_data.get("logits_hist_data_bar_heights", [])
-                        if logits_x and logits_y:
-                            st.markdown("### Logits Histogram")
-                            st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", "Values", "Logits"), use_container_width=True)
+                    # Logits Data and Histograms
+                    freq_x = selected_feature.get("freq_hist_data_bar_values", [])
+                    freq_y = selected_feature.get("freq_hist_data_bar_heights", [])
+                    logits_x = selected_feature.get("logits_hist_data_bar_values", [])
+                    logits_y = selected_feature.get("logits_hist_data_bar_heights", [])
+
+                    # Display Frequency Histogram
+                    if freq_x and freq_y:
+                        st.markdown("<h4 style='color:#1F618D;'>Frequency Histogram</h4>", unsafe_allow_html=True)
+                        st.altair_chart(
+                            plot_graph(freq_x, freq_y, "Frequency Histogram", "Values", "Frequency"),
+                            use_container_width=True
+                        )
+
+                    # Display Logits Histogram
+                    if logits_x and logits_y:
+                        st.markdown("<h4 style='color:#1F618D;'>Logits Histogram</h4>", unsafe_allow_html=True)
+                        st.altair_chart(
+                            plot_graph(logits_x, logits_y, "Logits Histogram", "Values", "Logits"),
+                            use_container_width=True
+                        )
         else:
             st.warning("No features found for the selected token. Try another token.")
