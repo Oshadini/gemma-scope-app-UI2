@@ -1,4 +1,4 @@
-# File: sentence_token_features_ui_with_api.py
+# File: sentence_token_features_ui_with_advanced_ui.py
 
 import streamlit as st
 import requests
@@ -20,8 +20,6 @@ if "available_explanations" not in st.session_state:
     st.session_state.available_explanations = []
 if "selected_explanation" not in st.session_state:
     st.session_state.selected_explanation = {}
-if "api_response" not in st.session_state:
-    st.session_state.api_response = {}
 
 # Helper Functions
 def tokenize_sentence(sentence):
@@ -37,8 +35,7 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()  # Raise an error for HTTP codes >= 400
-        st.session_state.api_response = response.json()  # Store the API response in session state
-        explanations = st.session_state.api_response.get("results", [])
+        explanations = response.json().get("results", [])
         if not explanations:
             st.warning(f"No explanations found for token: {token}")
         return explanations
@@ -73,17 +70,19 @@ sentence = st.sidebar.text_area("Enter a sentence:", "Streamlit makes creating d
 st.header("Sentence Tokenization and Features")
 if sentence:
     tokens = tokenize_sentence(sentence)
-    st.session_state.selected_token = st.radio("Tokens in Sentence:", tokens, horizontal=True)
+    st.subheader("Select a Token")
+    cols = st.columns(len(tokens))
+    
+    for i, token in enumerate(tokens):
+        with cols[i]:
+            if st.button(token):
+                st.session_state.selected_token = token
 
     if st.session_state.selected_token:
         st.subheader(f"Fetching Features for Token: {st.session_state.selected_token}")
 
         # Fetch features from Neuronpedia API
         explanations = fetch_explanations_for_token(st.session_state.selected_token)
-
-        # Display raw API response in an expandable section
-        with st.expander("View API Response"):
-            st.json(st.session_state.api_response)
 
         if explanations:
             # Store explanations in session state
