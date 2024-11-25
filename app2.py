@@ -17,12 +17,13 @@ HEADERS = {
 }
 
 # Initialize Session State
+# Initialize Session State
 if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
 if "available_explanations" not in st.session_state:
     st.session_state.available_explanations = []
-if "tokens" not in st.session_state:
-    st.session_state.tokens = []
+if "selected_explanation" not in st.session_state:
+    st.session_state.selected_explanation = {}
 
 
 # Helper Functions
