@@ -45,7 +45,7 @@ def fetch_features_for_token(token):
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
         result = response.json()
-        explanations = result.get("result", [])
+        explanations = result.get("results", [])
         return explanations
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
