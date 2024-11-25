@@ -44,7 +44,7 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        explanations = response.json().get("results", [])
+        explanations = response.json().get("result", [])
         if not explanations:
             st.warning(f"No explanations found for token: {token}")
         return explanations
