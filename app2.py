@@ -45,7 +45,7 @@ def fetch_explanations_for_token(token):
         results = response.json().get("result", [])
         explanations = []
         for result in results:
-            explanations.extend(result.get("explanations", []))  # Flatten nested explanations
+            explanations.extend(result.get("result", []))  # Flatten nested explanations
         return explanations
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
