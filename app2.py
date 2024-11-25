@@ -95,8 +95,9 @@ st.markdown(
         margin: 0px;  /* Remove gaps between buttons */
         padding: 0px; /* No padding */
         display: flex;  /* Use flexbox to align buttons in a row */
-        flex-wrap: nowrap;  /* Prevent buttons from wrapping to the next line */
+        flex-direction: row;  /* Ensure buttons align horizontally */
         gap: 5px;  /* Optional: Add gap between buttons */
+        flex-wrap: wrap;  /* Allow buttons to wrap to the next line if necessary */
     }
     .stButton > button {
         height: 40px;  /* Uniform button height */
@@ -108,7 +109,7 @@ st.markdown(
         font-size: 14px;
         font-weight: bold;
         padding: 0 10px;  /* Padding inside the button */
-        margin: 0;  /* Remove margins, use flexbox gap instead */
+        margin: 0;  /* Remove margins */
     }
     .stButton > button:hover {
         background-color: #005f99;  /* Darker blue on hover */
