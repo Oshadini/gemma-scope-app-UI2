@@ -7,11 +7,13 @@ import altair as alt
 import re  # Import regex for improved tokenization
 
 # Constants
-NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/explanation/search-model"
-MODEL_ID = "gemma-2-9b-it"
+NEURONPEDIA_API_URL = "https://www.neuronpedia.org/api/search-all"
+MODEL_ID = "gpt2-small"
+SOURCE_SET = "res-jb"
+SELECTED_LAYERS = ["6-res-jb"]
 HEADERS = {
     "Content-Type": "application/json",
-    "X-Api-Key": "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"
+    "X-Api-Key": "YOUR_TOKEN"  # Replace with your actual API token
 }
 
 # Initialize Session State
@@ -19,27 +21,38 @@ if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
 if "available_explanations" not in st.session_state:
     st.session_state.available_explanations = []
-if "selected_explanation" not in st.session_state:
-    st.session_state.selected_explanation = {}
+if "tokens" not in st.session_state:
+    st.session_state.tokens = []
+
 
 # Helper Functions
 def tokenize_sentence(sentence):
-    """Tokenize the input sentence using regex for better handling of punctuation and whitespace."""
+    """Tokenize the input sentence using regex."""
     return re.findall(r"\b\w+\b|[^\w\s]", sentence)
 
 def fetch_explanations_for_token(token):
-    """Fetch explanations from Neuronpedia API for a given token."""
+    """Fetch explanations for a given token using the Neuronpedia 'search-all' API."""
     payload = {
         "modelId": MODEL_ID,
-        "query": token
+        "sourceSet": SOURCE_SET,
+        "text": token,
+        "selectedLayers": SELECTED_LAYERS,
+        "sortIndexes": [1],
+        "ignoreBos": False,
+        "densityThreshold": -1,
+        "numResults": 50,
     }
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        explanations = response.json().get("results", [])
-        if not explanations:
+        result = response.json().get("result", [])
+        
+        # Debugging: Display the raw API response
+        #st.write("API Response Debugging:", response.json())
+        
+        if not result:
             st.warning(f"No explanations found for token: {token}")
-        return explanations
+        return result
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
