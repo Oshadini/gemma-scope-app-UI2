@@ -130,11 +130,18 @@ if sentence:
                 st.json(st.session_state.api_response)
 
         if explanations:
-            descriptions = [exp["description"] for exp in explanations]
-            selected_description = st.selectbox("Select a Feature Description:", descriptions)
+            st.markdown("### Token Explanations")
+            for exp in explanations:
+                description = exp.get("description", "No description available")
+                value = exp.get("value", "No value available")
+                st.markdown(f"- **Description**: {description}")
+                st.markdown(f"- **Value**: {value}\n---")
+
+            # Allow selection of explanations for visualization
+            selected_description = st.selectbox("Select an Explanation to Explore:", [exp.get("description", "No description") for exp in explanations])
 
             if selected_description:
-                selected_feature = next((exp for exp in explanations if exp["description"] == selected_description), None)
+                selected_feature = next((exp for exp in explanations if exp.get("description") == selected_description), None)
                 if selected_feature:
                     neuron_data = selected_feature.get("neuron", {})
                     if not neuron_data:
