@@ -95,7 +95,7 @@ st.markdown(
         margin: 0px;  /* Remove gaps between buttons */
         padding: 0px; /* No padding */
         display: flex;  /* Use flexbox to align buttons in a row */
-        flex-wrap: wrap;  /* Allow buttons to wrap to the next line when needed */
+        flex-wrap: nowrap;  /* Prevent buttons from wrapping to the next line */
         gap: 5px;  /* Optional: Add gap between buttons */
     }
     .stButton > button {
