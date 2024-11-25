@@ -47,7 +47,7 @@ def fetch_explanations_for_token(token):
         result = response.json().get("result", [])
         
         # Debugging: Display the raw API response
-        st.write("API Response Debugging:", response.json())
+        #st.write("API Response Debugging:", response.json())
         
         if not result:
             st.warning(f"No explanations found for token: {token}")
