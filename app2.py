@@ -43,7 +43,7 @@ def fetch_explanations_for_token(token):
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
         result_data = response.json().get("result", [])  # Top-level 'result'
-        descriptions = []  # To store all descriptions
+        explanations = []  # To store all explanations
     
         # Traverse the results
         for result in result_data:
@@ -52,10 +52,12 @@ def fetch_explanations_for_token(token):
                 nested_explanations = neuron.get("explanations", [])  # Access 'explanations'
                 if isinstance(nested_explanations, list):  # Ensure it's a list
                     for explanation in nested_explanations:
-                        description = explanation.get("description", "No description available")
-                        descriptions.append(description)
+                        explanations.append({
+                            "description": explanation.get("description", "No description available"),
+                            "neuron": neuron
+                        })
     
-        return descriptions  # Return all extracted descriptions
+        return explanations  # Return all explanations with their associated neuron data
     
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
@@ -92,7 +94,7 @@ if "tokens" in st.session_state and st.session_state.tokens:
     cols = st.columns(len(st.session_state.tokens))
     for idx, token in enumerate(st.session_state.tokens):
         with cols[idx]:
-            if st.button(token, key=f"token_{idx}") :
+            if st.button(token, key=f"token_{idx}"):
                 st.session_state.selected_token = token
 
 # Fetch and Display Explanations
@@ -101,11 +103,11 @@ if st.session_state.selected_token:
     explanations = fetch_explanations_for_token(st.session_state.selected_token)
 
     if explanations:
-        descriptions = [exp for exp in explanations]
+        descriptions = [exp["description"] for exp in explanations]
         selected_description = st.selectbox("Select a Feature Description:", descriptions)
 
         if selected_description and selected_description != "No description available":
-            selected_feature = next((exp for exp in explanations if exp == selected_description), None)
+            selected_feature = next((exp for exp in explanations if exp["description"] == selected_description), None)
             if selected_feature:
                 neuron_data = selected_feature.get("neuron", {})
                 if neuron_data:
