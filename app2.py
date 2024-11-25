@@ -87,18 +87,9 @@ if st.sidebar.button("Generate Tokens"):
     st.session_state.tokens = tokenize_sentence(sentence)
 
 # Apply Custom CSS for Button Styling
-# Apply Custom CSS for Button Styling
 st.markdown(
     """
     <style>
-    div[data-testid="stVerticalBlock"] > div {
-        margin: 0px;  /* Remove gaps between buttons */
-        padding: 0px; /* No padding */
-        display: flex;  /* Use flexbox to align buttons in a row */
-        flex-direction: row;  /* Ensure buttons align horizontally */
-        gap: 5px;  /* Optional: Add gap between buttons */
-        flex-wrap: wrap;  /* Allow buttons to wrap to the next line if necessary */
-    }
     .stButton > button {
         height: 40px;  /* Uniform button height */
         width: auto;  /* Auto width */
@@ -109,7 +100,7 @@ st.markdown(
         font-size: 14px;
         font-weight: bold;
         padding: 0 10px;  /* Padding inside the button */
-        margin: 0;  /* Remove margins */
+        margin: 0 5px;  /* Margin for spacing between buttons */
     }
     .stButton > button:hover {
         background-color: #005f99;  /* Darker blue on hover */
@@ -119,14 +110,17 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 # Display Tokens and Features
 if "tokens" in st.session_state and st.session_state.tokens:
     st.markdown("<h2 style='color:#1F618D;'>Sentence Tokenization</h2>", unsafe_allow_html=True)
-    # Create horizontal buttons without a gap between them, wrap to new line if necessary
+    
+    # Create a row of buttons with Streamlit's columns
+    col_count = len(st.session_state.tokens)
+    cols = st.columns(col_count)  # Create as many columns as there are tokens
     for idx, token in enumerate(st.session_state.tokens):
-        if st.button(token, key=f"token_{idx}"):
-            st.session_state.selected_token = token
+        with cols[idx]:
+            if st.button(token, key=f"token_{idx}"):
+                st.session_state.selected_token = token
 
 # Fetch and Display Explanations
 if st.session_state.selected_token:
