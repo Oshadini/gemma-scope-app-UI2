@@ -93,22 +93,22 @@ st.markdown(
     div[data-testid="stHorizontalBlock"] > div {
         margin: 0px;  /* Remove gaps between buttons */
         padding: 0px; /* No padding */
+        display: inline-block;
     }
-    button[data-testid="stButton"] {
+    .stButton > button {
         height: 40px;  /* Uniform button height */
-        border: 2px solid #b2d8e6;  /* Light blue border */
-        border-radius: 8px;  /* Rounded corners */
-        background-color: #e3f7fc;  /* Light blue background */
-        color: #007acc;  /* Blue text */
+        width: auto;  /* Auto width */
+        background-color: #007acc;  /* Blue background */
+        color: white;  /* White text */
+        border-radius: 5px;  /* Rounded corners */
+        border: none;  /* No border */
         font-size: 14px;
         font-weight: bold;
-        margin-right: 0px;  /* Remove right margin to avoid gaps */
-        margin-left: 0px;   /* Remove left margin to avoid gaps */
-        display: inline-block; /* Keep buttons inline */
+        padding: 0 10px;  /* Padding inside the button */
+        margin: 2px;  /* Small margin to keep buttons close */
     }
-    button[data-testid="stButton"]:hover {
-        background-color: #d1f0ff;  /* Brighter hover effect */
-        color: #005f99;  /* Darker hover text */
+    .stButton > button:hover {
+        background-color: #005f99;  /* Darker blue on hover */
     }
     </style>
     """,
@@ -118,11 +118,10 @@ st.markdown(
 # Display Tokens and Features
 if "tokens" in st.session_state and st.session_state.tokens:
     st.markdown("<h2 style='color:#1F618D;'>Sentence Tokenization</h2>", unsafe_allow_html=True)
-    cols = st.columns(len(st.session_state.tokens))  # Create equal columns for tokens
+    # Create horizontal buttons without a gap between them, wrap to new line if necessary
     for idx, token in enumerate(st.session_state.tokens):
-        with cols[idx]:
-            if st.button(token, key=f"token_{idx}"):
-                st.session_state.selected_token = token
+        if st.button(token, key=f"token_{idx}"):
+            st.session_state.selected_token = token
 
 # Fetch and Display Explanations
 if st.session_state.selected_token:
