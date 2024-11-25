@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 import requests
 import pandas as pd
 import altair as alt
@@ -92,7 +92,7 @@ st.markdown(
     <style>
     div[data-testid="stHorizontalBlock"] > div {
         margin: 0px;  /* Remove gaps between buttons */
-        padding: 5px; /* Add uniform spacing */
+        padding: 0px; /* No padding */
     }
     button[data-testid="stButton"] {
         height: 40px;  /* Uniform button height */
@@ -102,7 +102,9 @@ st.markdown(
         color: #007acc;  /* Blue text */
         font-size: 14px;
         font-weight: bold;
-        margin: 0px auto;  /* Center align buttons */
+        margin-right: 0px;  /* Remove right margin to avoid gaps */
+        margin-left: 0px;   /* Remove left margin to avoid gaps */
+        display: inline-block; /* Keep buttons inline */
     }
     button[data-testid="stButton"]:hover {
         background-color: #d1f0ff;  /* Brighter hover effect */
