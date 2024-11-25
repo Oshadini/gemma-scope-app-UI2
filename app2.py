@@ -103,14 +103,57 @@ if sentence:
 
     if st.session_state.selected_token:
         st.markdown(f"<h3 style='color:#1ABC9C;'>Features for Token: <u>{st.session_state.selected_token}</u></h3>", unsafe_allow_html=True)
-        explanations = fetch_explanations_for_token(st.session_state.selected_token)
+        features = fetch_explanations_for_token(st.session_state.selected_token)
 
-        if explanations:
+        if features:
             st.markdown("### Token Explanations")
-            # Extract and display descriptions
-            descriptions = [exp.get("description", "No description available") for exp in explanations]
-            st.write("Explanations found for the token:")
-            for idx, desc in enumerate(descriptions, start=1):
-                st.markdown(f"{idx}. {desc}")
+            # Safely extract descriptions (now correctly extracting the description field)
+            descriptions = [f.get("description", "No description available") for f in features]
+
+            # Warn if all descriptions are missing
+            if all(desc == "No description available" for desc in descriptions):
+                st.warning("Descriptions are missing for all features of the selected token.")
+
+            # Feature selection dropdown
+            selected_description = st.selectbox("Select a Feature Description:", descriptions)
+
+            if selected_description and selected_description != "No description available":
+                # Find the selected feature by description
+                selected_feature = next((f for f in features if f.get("description") == selected_description), None)
+                if selected_feature:
+                    neuron_data = selected_feature.get("neuron", {})
+                    if neuron_data:
+                        # Display Neuron Data
+                        cols = st.columns(2)
+                        with cols[0]:
+                            st.markdown("### Negative Logits")
+                            neg_str = neuron_data.get("neg_str", [])
+                            neg_values = neuron_data.get("neg_values", [])
+                            if neg_str and neg_values:
+                                st.dataframe(pd.DataFrame({"Word": neg_str, "Value": neg_values}))
+                            else:
+                                st.write("No Negative Logits available.")
+                        with cols[1]:
+                            st.markdown("### Positive Logits")
+                            pos_str = neuron_data.get("pos_str", [])
+                            pos_values = neuron_data.get("pos_values", [])
+                            if pos_str and pos_values:
+                                st.dataframe(pd.DataFrame({"Word": pos_str, "Value": pos_values}))
+                            else:
+                                st.write("No Positive Logits available.")
+                        
+                        # Display Histograms
+                        freq_x = neuron_data.get("freq_hist_data_bar_values", [])
+                        freq_y = neuron_data.get("freq_hist_data_bar_heights", [])
+                        if freq_x and freq_y:
+                            st.markdown("### Frequency Histogram")
+                            st.altair_chart(plot_graph(freq_x, freq_y, "Frequency Histogram", "Values", "Frequency"), use_container_width=True)
+                        logits_x = neuron_data.get("logits_hist_data_bar_values", [])
+                        logits_y = neuron_data.get("logits_hist_data_bar_heights", [])
+                        if logits_x and logits_y:
+                            st.markdown("### Logits Histogram")
+                            st.altair_chart(plot_graph(logits_x, logits_y, "Logits Histogram", "Values", "Logits"), use_container_width=True)
+                    else:
+                        st.warning("No neuron data available for the selected feature.")
         else:
-            st.warning("No features found for the selected token. Try another token.")
+            st.warning("No features found for the selected token.")
