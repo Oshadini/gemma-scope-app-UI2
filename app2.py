@@ -49,7 +49,7 @@ def fetch_explanations_for_token(token):
         # Debugging: Display raw API response
         #st.write("API Response Debugging:", result)
         
-        return result.get("results", [])
+        return result.get("result", [])
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
