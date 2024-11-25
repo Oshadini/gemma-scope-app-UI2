@@ -90,7 +90,7 @@ if st.sidebar.button("Generate Tokens"):
 st.markdown(
     """
     <style>
-    div[data-testid="stHorizontalBlock"] > div {
+    div[data-testid="stVerticalBlock"] > div {
         margin: 0px;  /* Remove gaps between buttons */
         padding: 0px; /* No padding */
         display: inline-block;
