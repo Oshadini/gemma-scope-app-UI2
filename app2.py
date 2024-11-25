@@ -13,16 +13,16 @@ SOURCE_SET = "res-jb"
 SELECTED_LAYERS = ["6-res-jb"]
 HEADERS = {
     "Content-Type": "application/json",
-    "X-Api-Key": "sk-np-h0ZsR5M1gY0w8al332rJUYa0C8hQL2yUogd5n4Pgvvg0"  # Replace with your actual API token
+    "X-Api-Key": "YOUR_TOKEN"  # Replace with your actual API token
 }
 
 # Initialize Session State
 if "selected_token" not in st.session_state:
     st.session_state.selected_token = None
-if "available_explanations" not in st.session_state:
-    st.session_state.available_explanations = []
-if "selected_explanation" not in st.session_state:
-    st.session_state.selected_explanation = {}
+if "available_features" not in st.session_state:
+    st.session_state.available_features = []
+if "selected_feature" not in st.session_state:
+    st.session_state.selected_feature = {}
 
 # Helper Functions
 def tokenize_sentence(sentence):
@@ -44,10 +44,10 @@ def fetch_features_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        features = response.json().get("results", [])
-        if not features:
+        results = response.json().get("results", [])
+        if not results:
             st.warning(f"No features found for token: {token}")
-        return features
+        return results
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
         return []
@@ -117,12 +117,16 @@ if sentence:
         features = fetch_features_for_token(st.session_state.selected_token)
 
         if features:
-            # Extract and display descriptions in a dropdown
-            descriptions = [feature["description"] for feature in features]
+            # Extract descriptions
+            descriptions = [feature.get("featureDescription", "No description available") for feature in features]
             selected_description = st.selectbox("Select a Feature Description:", descriptions)
 
             if selected_description:
-                selected_feature = next((feature for feature in features if feature["description"] == selected_description), None)
+                # Find the corresponding feature
+                selected_feature = next(
+                    (feature for feature in features if feature.get("featureDescription") == selected_description),
+                    None
+                )
                 if selected_feature:
                     # Logits Data and Histograms
                     freq_x = selected_feature.get("freq_hist_data_bar_values", [])
