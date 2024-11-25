@@ -88,10 +88,37 @@ sentence = st.sidebar.text_area("Enter a sentence:")
 if st.sidebar.button("Generate Tokens"):
     st.session_state.tokens = tokenize_sentence(sentence)
 
+# Apply Custom CSS for Button Styling
+st.markdown(
+    """
+    <style>
+    div[data-testid="stHorizontalBlock"] > div {
+        margin: 0px;  /* Remove gaps between buttons */
+        padding: 5px; /* Add uniform spacing */
+    }
+    button[data-testid="stButton"] {
+        height: 40px;  /* Uniform button height */
+        border: 2px solid #b2d8e6;  /* Light blue border */
+        border-radius: 8px;  /* Rounded corners */
+        background-color: #e3f7fc;  /* Light blue background */
+        color: #007acc;  /* Blue text */
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0px auto;  /* Center align buttons */
+    }
+    button[data-testid="stButton"]:hover {
+        background-color: #d1f0ff;  /* Brighter hover effect */
+        color: #005f99;  /* Darker hover text */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Display Tokens and Features
 if "tokens" in st.session_state and st.session_state.tokens:
     st.markdown("<h2 style='color:#1F618D;'>Sentence Tokenization</h2>", unsafe_allow_html=True)
-    cols = st.columns(len(st.session_state.tokens))
+    cols = st.columns(len(st.session_state.tokens))  # Create equal columns for tokens
     for idx, token in enumerate(st.session_state.tokens):
         with cols[idx]:
             if st.button(token, key=f"token_{idx}"):
