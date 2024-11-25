@@ -42,7 +42,7 @@ def fetch_explanations_for_token(token):
     try:
         response = requests.post(NEURONPEDIA_API_URL, json=payload, headers=HEADERS)
         response.raise_for_status()
-        explanations = response.json().get("explanations", [])
+        explanations = response.json().get("result", [])
         return explanations  # Return raw explanation list
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")
